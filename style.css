@@ -1,0 +1,63 @@
+body {
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: 50% 0;
+  z-index: 1;
+}
+
+.netName {
+  position: absolute;
+  display: grid;
+  grid-template-columns: repeat(8, 27.375px);
+  grid-template-rows: repeat(16, 23.625px);
+  width: 219px;
+  height: 378px;
+  left: 332px;
+  top: 212px;
+}
+.netName div {
+  /* border: solid 1px red; */
+  background-size: cover;
+  background-position: center;
+}
+
+.screen {
+  position: relative;
+  width: 1198px;
+  height: 663px;
+  border: solid 1px black;
+  background-image: url("./images/background.jpg");
+}
+
+.pillContainer {
+  position: absolute;
+}
+
+.marioContainer {
+  width: 190px;
+  height: 160px;
+  position: absolute;
+  background-repeat: no-repeat !important;
+  background-size: contain !important;
+  background-position: center !important;
+  left: 609px;
+  top: 167px;
+  border-radius: 30px;
+}
+
+.pillFlyContainer {
+  width: 300px;
+  height: 150px;
+  position: absolute;
+  left: 417px;
+  top: 40px;
+  display: grid;
+  grid-template-columns: repeat(10, 30px);
+  grid-template-rows: repeat(4, 30px);
+}
+.pillFlyContainer div {
+  background-size: cover;
+}
+.pillFlyContainer #animNet48 {
+  transform: rotate(0deg) !important;
+}

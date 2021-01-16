@@ -2,15 +2,18 @@
 //TODO  dodaj czyszczenie , warnuki na dodawanie , obracanie , uważaj na wsuwanie i obracanie , pozycje w tablicy 
 const pillsColors = [{
         color: "red",
-        imgSource: `url('./images/redPill.png')`
+        imgSource: `url('./images/redPill.png')`,
+        aloneImagine: `url('./images/redDot.png')`
     },
     {
         color: "blue",
-        imgSource: `url('./images/bluePill.png')`
+        imgSource: `url('./images/bluePill.png')`,
+        aloneImagine: `url('./images/blueDot.png')`
     },
     {
         color: "yellow",
-        imgSource: `url('./images/yellowPill.png')`
+        imgSource: `url('./images/yellowPill.png')`,
+        aloneImagine: `url('./images/yellowDot.png')`
     },
 ]
 const virusColor = [{
@@ -21,7 +24,7 @@ const virusColor = [{
     imagine: `url('./images/blueVirus.gif')`
 }, {
     color: "yellow",
-    imagine: `url('./images/yellowVirus.gif')`
+    imagine: `url('./images/yellowVirus.gif')`,
 }]
 let pillFallInterval;
 const rotationAngles = ['rotate(0deg)', 'rotate(-180deg)', 'rotate(-90deg)', 'rotate(90deg)']
@@ -62,7 +65,7 @@ const game = {
                     },
                     contains: {
                         possibleRotation: true,
-                        possibleStopPoint: true
+                        possibleStopPoint: true,
                     },
                 }
                 let webDiv = document.createElement('div')
@@ -256,28 +259,35 @@ const game = {
             littleArray.forEach((index) => { // check for horizontal drops  
                 if (lastRow !== row) {
                     killArray = []
-                    dropCounter = 0
+                    dropCounter = 1
                     lastRow = row
                 }
-                if (index.contains.color !== undefined)
-                    if (index.contains.color === "" || index.contains.color !== lastColor) {
-                        lastColor = index.contains.color
-                        killArray.push(index)
-                        console.log(index)
-                        if (dropCounter >= 4) {
-                            dropCounter = 1
-                            game.dropArray = game.dropArray.concat(killArray)
-                            killArray = []
-                        } else {
-                            dropCounter = 1
-                            killArray = []
+                if (index.contains === undefined)
+                    if (index.contains.color !== undefined)
+                        if (index.contains.color === "" || index.contains.color !== lastColor) {
+                            lastColor = index.contains.color
+                            if (dropCounter >= 4) {
+                                dropCounter = 1
+                                game.dropArray = game.dropArray.concat(killArray)
+                                killArray = []
+                            } else {
+                                dropCounter = 1
+                                killArray = []
+                            }
+                            killArray.push(index)
+
                         }
-                    }
                 else {
                     dropCounter++
                     killArray.push(index)
-                } else
+                } else {
                     lastColor = ""
+                    if (dropCounter >= 4) {
+                        dropCounter = 1
+                        game.dropArray = game.dropArray.concat(killArray)
+                        killArray = []
+                    }
+                }
             })
         })
         //vertical check
@@ -292,7 +302,6 @@ const game = {
                 if (index[counter].contains.color !== undefined)
                     if (index[counter].contains.color === "" || index[counter].contains.color !== lastColor) {
                         lastColor = index[counter].contains.color
-                        killArray.push(index[counter])
                         if (dropCounter >= 4) {
                             dropCounter = 1
                             game.dropArray = game.dropArray.concat(killArray)
@@ -301,15 +310,25 @@ const game = {
                             dropCounter = 1
                             killArray = []
                         }
+                        killArray.push(index[counter])
+
                     }
                 else {
                     dropCounter++
                     killArray.push(index[counter])
-                } else
+                } else {
                     lastColor = ""
+                    if (dropCounter >= 4) {
+                        dropCounter = 1
+                        game.dropArray = game.dropArray.concat(killArray)
+                        killArray = []
+                    } else {
+                        dropCounter = 1
+                        killArray = []
+                    }
+                }
             })
         })
-        console.log(game.dropArray)
         if (game.dropArray.length !== 0)
             game.killPill()
         else {
@@ -321,24 +340,31 @@ const game = {
     },
     killPill: () => {
         game.dropArray.forEach((element, counter) => {
-            console.log(element)
             document.getElementById(element.squereId).style.backgroundImage = `url()`
-            game.gameArray[element.squereArrayCoords.row][element.squereArrayCoords.column] = {
-                squereId: element.squereId,
-                squereArrayCoords: {
-                    row: element.squereArrayCoords.row,
-                    column: element.squereArrayCoords.column
-                },
-                contains: {
-                    possibleRotation: true,
-                    possibleStopPoint: true
-                },
-            } //TODO finish me please m8 i love you have a great day
-        }) // nawiązanie do Kill Bill :)
+            if (!element.contains.shouldFall)
+                switch (element.contains.rotationAngle) {
+                    case 'rotate(0deg)': //+ index
+                        game.gameArray[element.squereArrayCoords.row][element.squereArrayCoords.column + 1].contains.shouldFall = true
+                        break
+                    case 'rotate(90deg)': // + rząd 
+                        game.gameArray[element.squereArrayCoords.row + 1][element.squereArrayCoords.column].contains.shouldFall = true
+                        break
+                    case 'rotate(-90deg)': // - rząd 
+                        game.gameArray[element.squereArrayCoords.row - 1][element.squereArrayCoords.column].contains.shouldFall = true
+                        break
+                    case 'rotate(-180deg)': // - index
+                        game.gameArray[element.squereArrayCoords.row][element.squereArrayCoords.column - 1].contains.shouldFall = true
+                        break
+                }
+            delete game.gameArray[element.squereArrayCoords.row][element.squereArrayCoords.column]['contains']
+            game.gameArray[element.squereArrayCoords.row][element.squereArrayCoords.column]["contains"] = {
+                possibleRotation: true,
+                possibleStopPoint: true
+            }
+        })
         game.dropArray = []
-        // game.createPill()
-        // pillFallInterval = setInterval(game.pillFall, 1000)
-        // document.addEventListener('keydown', game.pillMove)
+        game.dropIt()
+
     },
     throwPill: () => {
         mario.throwPill({
@@ -382,7 +408,6 @@ const game = {
             while (found)
             if (i === gameLevelsSettings[game.level].virusNumber - 1) { // interval has ended 
                 game.refreshNet()
-                // game.throwPill()
                 game.pillSegmentLeft = pillsColors[Math.floor(Math.random() * (3))] //TODO uncomment 
                 game.pillSegmentRight = pillsColors[Math.floor(Math.random() * (3))] //!!! uncomment 
                 game.createPill()
@@ -393,11 +418,12 @@ const game = {
             }
         }
     },
+    //*opadanie + refresh planszy 
     refreshNet: () => {
         for (let i = 0; i < game.gameArray.length; i++) {
             for (let j = 0; j < game.gameArray[i].length; j++) {
-                if (game.gameArray[i][j].contains !== 2 && game.gameArray[i][j].contains.imagine != undefined) {
-                    if (game.gameArray[i][j].contains.type === "virus")
+                try {
+                    if (game.gameArray[i][j].contains.type === "virus") //!!! wywala undefinded nie może odczytać type of ::::::: 
                         switch (game.gameArray[i][j].contains.color) {
                             case "red":
                                 document.getElementById(game.gameArray[i][j].squereId).style.backgroundImage = virusColor[0].imagine
@@ -409,11 +435,102 @@ const game = {
                                 document.getElementById(game.gameArray[i][j].squereId).style.backgroundImage = virusColor[2].imagine
                                 break
                         }
-                }
+                    else if (game.gameArray[i][j].contains.shouldFall) {
+                        switch (game.gameArray[i][j].contains.color) {
+                            case "red":
+                                document.getElementById(game.gameArray[i][j].squereId).style.backgroundImage = pillsColors[0].aloneImagine
+                                break
+                            case "blue":
+                                document.getElementById(game.gameArray[i][j].squereId).style.backgroundImage = pillsColors[1].aloneImagine
+                                break
+                            case "yellow":
+                                document.getElementById(game.gameArray[i][j].squereId).style.backgroundImage = pillsColors[2].aloneImagine
+                                break
+                        }
+                    } else if (game.gameArray[i][j].contains.type === "pill") {
+                        switch (game.gameArray[i][j].contains.color) {
+                            case "red":
+                                document.getElementById(game.gameArray[i][j].squereId).style.backgroundImage = pillsColors[0].imgSource
+                                break
+                            case "blue":
+                                document.getElementById(game.gameArray[i][j].squereId).style.backgroundImage = pillsColors[1].imgSource
+
+                                break
+                            case "yellow":
+                                document.getElementById(game.gameArray[i][j].squereId).style.backgroundImage = pillsColors[2].imgSource
+                                break
+                        }
+                    } else {
+                        document.getElementById(game.gameArray[i][j].squereId).style.backgroundImage = `url()` // psuje dodaj warunek 
+
+                    }
+                } catch (err) {}
             }
+
         }
     },
+    dropIt: () => { //TODO pracujesz ???
+        let shouldBeRefreshed = false
+        let dropItInterval = setTimeout(() => {
+                for (let row = game.gameArray.length - 1; row > 0; row--) {
+                    for (let column = game.gameArray[row].length - 1; column >= 0; column--) {
+                        // if (game.gameArray[row][column].contains.possibleStopPoint && game.gameArray[row - 1][column].contains.shouldFall !== undefined && game.gameArray[row - 1][column].contains.shouldFall) {
+                        console.log(game.lonelyPill(row, column))
+                        if (game.lonelyPill(row, column).fall) {
+                            delete game.gameArray[row][column].contains
+                            game.gameArray[row][column].contains = {
+                                ...game.gameArray[row - 1][column].contains
+                            }
+                            game.gameArray[row - 1][column].contains = {
+                                possibleRotation: true,
+                                possibleStopPoint: true
+                            }
+                            shouldBeRefreshed = true
+                        }
+                    }
+                }
+                if (shouldBeRefreshed) {
+                    game.refreshNet()
+                    setTimeout(() => {
+                        // game.killPill()
+                        game.dropIt()
+                    })
+                } else {
+                    // clearInterval(dropItInterval)
+                    game.refreshNet()
+                    game.createPill()
+                    mario.throwPill({
+                        "left": game.pillSegmentLeft,
+                        'right': game.pillSegmentRight
+                    })
+                }
+            },
+            1000)
 
+    },
+    lonelyPill: (row, column) => {
+        console.log("essa byq", row, column)
+        if (game.gameArray[row][column].contains.possibleStopPoint && game.gameArray[row - 1][column].contains.shouldFall !== undefined && game.gameArray[row - 1][column].contains.shouldFall) {
+            console.log()
+            return {
+                fall: true,
+                higherPill: false
+            }
+            //* pigółka idąca do góry 
+        } else if (game.gameArray[row][column].contains.possibleStopPoint && game.gameArray[row-1][column] != undefined && game.gameArray[row-1][column].contains.type == "pill" && game.gameArray[row][column - 2] != undefined && game.gameArray[row][column - 2].contains.type == "pill" && game.gameArray[row][column - 1].contains.rotationAngle == 'rotate(-90deg)') { //*dprawdzenie do jednego w góre  // wsytarczy sprawdzić jeden do przodu / jeden w góre 
+            console.log("uga buga ") //TODO dokończ mnoie
+            return {
+                fall: true,
+                higherPill: true
+            }
+        } else {
+            return {
+                fall: false,
+                higherPill: false
+            }
+        }
+
+    }
 
 }
 const mario = {
@@ -428,8 +545,8 @@ const mario = {
     catchPill: () => {
         game.pillSegmentLeft = pillsColors[Math.floor(Math.random() * (3))] //TODO uncomment 
         game.pillSegmentRight = pillsColors[Math.floor(Math.random() * (3))] //!!! uncomment 
-        document.getElementById("animNet49").style.backgroundImage = game.pillSegmentLeft.imgSource
-        document.getElementById("animNet48").style.backgroundImage = game.pillSegmentRight.imgSource
+        document.getElementById("animNet49").style.backgroundImage = game.pillSegmentRight.imgSource
+        document.getElementById("animNet48").style.backgroundImage = game.pillSegmentLeft.imgSource
     },
     throwPill: (pillColors) => {
         let throwIntervalCounter = 0
@@ -470,12 +587,4 @@ window.addEventListener('DOMContentLoaded', (event) => {
     mario.createAnimationNet()
     game.createVirusMap()
     game.refreshNet()
-    // //!!!should be romved
-    // game.pillSegmentLeft = pillsColors[Math.floor(Math.random() * (3))] //TODO uncomment 
-    // game.pillSegmentRight = pillsColors[Math.floor(Math.random() * (3))] //!!! uncomment 
-    // game.createPill()
-    // mario.throwPill({
-    //     "left": game.pillSegmentLeft,
-    //     'right': game.pillSegmentRight
-    // })
 });

@@ -460,6 +460,7 @@ const game = {
                                 document.getElementById(game.gameArray[i][j].squereId).style.backgroundImage = pillsColors[2].imgSource
                                 break
                         }
+                        document.getElementById(game.gameArray[i][j].squereId).style.transform = game.gameArray[i][j].contains.rotationAngle
                     } else {
                         document.getElementById(game.gameArray[i][j].squereId).style.backgroundImage = `url()` // psuje dodaj warunek 
 
@@ -469,30 +470,32 @@ const game = {
 
         }
     },
-    dropIt: () => { //TODO pracujesz ???
+    dropIt: () => {
         let shouldBeRefreshed = false
         let dropItInterval = setTimeout(() => {
                 for (let row = game.gameArray.length - 1; row > 0; row--) {
                     for (let column = game.gameArray[row].length - 1; column >= 0; column--) {
-                        // if (game.gameArray[row][column].contains.possibleStopPoint && game.gameArray[row - 1][column].contains.shouldFall !== undefined && game.gameArray[row - 1][column].contains.shouldFall) {
-                        console.log(game.lonelyPill(row, column))
-                        if (game.lonelyPill(row, column).fall) {
-                            delete game.gameArray[row][column].contains
-                            game.gameArray[row][column].contains = {
-                                ...game.gameArray[row - 1][column].contains
-                            }
-                            game.gameArray[row - 1][column].contains = {
-                                possibleRotation: true,
-                                possibleStopPoint: true
-                            }
+                        //*warunek dotyczący odpadania pojedynczych części 
+                        if (game.gameArray[row][column].contains.possibleStopPoint && game.gameArray[row - 1][column].contains.shouldFall !== undefined && game.gameArray[row - 1][column].contains.shouldFall) {
+                            game.dropItArrayComponent(row, column, (row - 1), column, false)
                             shouldBeRefreshed = true
-                        }
+                        } else
+                            //*warunek opisujący opadanie pełnej tabletki w momencie ułożenia jej w pionie 
+                            if (game.gameArray[row][column].contains.possibleStopPoint &&
+                                game.gameArray[row - 1][column].contains.type !== undefined &&
+                                game.gameArray[row - 1][column].contains.type == "pill" &&
+                                game.gameArray[row - 1][column].contains.rotationAngle === 'rotate(-90deg)'
+                            ) {
+                                console.log("oj byq +1 chce działać ")
+                                game.dropItArrayComponent(row, column, (row - 1), column, true)
+                                game.dropItArrayComponent((row - 1), column, (row - 2), column, true)
+                                shouldBeRefreshed = true
+                            }
                     }
                 }
                 if (shouldBeRefreshed) {
                     game.refreshNet()
                     setTimeout(() => {
-                        // game.killPill()
                         game.dropIt()
                     })
                 } else {
@@ -508,17 +511,25 @@ const game = {
             1000)
 
     },
+    dropItArrayComponent: (endRow, endColumn, firstRow, firstColumn, heigherPill) => {
+        delete game.gameArray[endRow][endColumn].contains //wyjściowa pozycja pola piguły 
+        game.gameArray[endRow][endColumn].contains = {
+            ...game.gameArray[firstRow][firstColumn].contains,
+            heigherPill: heigherPill
+        }
+        game.gameArray[firstRow][firstColumn].contains = { //wyczyszczenie wyjścuowej 
+            possibleRotation: true,
+            possibleStopPoint: true
+        }
+    },
     lonelyPill: (row, column) => {
-        console.log("essa byq", row, column)
         if (game.gameArray[row][column].contains.possibleStopPoint && game.gameArray[row - 1][column].contains.shouldFall !== undefined && game.gameArray[row - 1][column].contains.shouldFall) {
-            console.log()
             return {
                 fall: true,
                 higherPill: false
             }
             //* pigółka idąca do góry 
-        } else if (game.gameArray[row][column].contains.possibleStopPoint && game.gameArray[row-1][column] != undefined && game.gameArray[row-1][column].contains.type == "pill" && game.gameArray[row][column - 2] != undefined && game.gameArray[row][column - 2].contains.type == "pill" && game.gameArray[row][column - 1].contains.rotationAngle == 'rotate(-90deg)') { //*dprawdzenie do jednego w góre  // wsytarczy sprawdzić jeden do przodu / jeden w góre 
-            console.log("uga buga ") //TODO dokończ mnoie
+        } else if (game.gameArray[row][column].contains.possibleStopPoint && game.gameArray[row - 1][column] != undefined && game.gameArray[row - 1][column].contains.type == "pill" && game.gameArray[row][column - 2] != undefined && game.gameArray[row][column - 2].contains.type == "pill" && game.gameArray[row][column - 1].contains.rotationAngle == 'rotate(-90deg)') { //*dprawdzenie do jednego w góre  // wsytarczy sprawdzić jeden do przodu / jeden w góre 
             return {
                 fall: true,
                 higherPill: true
@@ -543,13 +554,15 @@ const mario = {
         document.querySelector('.marioContainer').style.background = `url('./images/italianoWithDrugs.png')`
     },
     catchPill: () => {
-        game.pillSegmentLeft = pillsColors[Math.floor(Math.random() * (3))] //TODO uncomment 
-        game.pillSegmentRight = pillsColors[Math.floor(Math.random() * (3))] //!!! uncomment 
+        document.querySelector('.marioContainer').style.background = `url('./images/italianoWithDrugs.png')`
+        game.pillSegmentLeft = pillsColors[Math.floor(Math.random() * (3))]
+        game.pillSegmentRight = pillsColors[Math.floor(Math.random() * (3))]
         document.getElementById("animNet49").style.backgroundImage = game.pillSegmentRight.imgSource
         document.getElementById("animNet48").style.backgroundImage = game.pillSegmentLeft.imgSource
     },
     throwPill: (pillColors) => {
         let throwIntervalCounter = 0
+        mario.thrower()
         let flyInterval = setInterval(() => {
             if (throwIntervalCounter !== 0) {
                 document.getElementById(flySchema[throwIntervalCounter - 1].positions.left).style.backgroundImage = `url('')`
@@ -564,21 +577,35 @@ const mario = {
             throwIntervalCounter++
             if (throwIntervalCounter === flySchema.length) {
                 clearInterval(flyInterval)
-                document.getElementById(flySchema[throwIntervalCounter - 1].positions.left).style.backgroundImage = `url('')`
-                document.getElementById(flySchema[throwIntervalCounter - 1].positions.right).style.backgroundImage = `url('')`
                 //creates new pill
-                game.createPill()
-                game.pillPosition(3, 4)
-                pillFallInterval = setInterval(game.pillFall, 1000)
-                document.addEventListener('keydown', game.pillMove)
-                //generate new pill colcor 
-                mario.catchPill()
+                if (game.gameArray[0][3].contains.possibleStopPoint && game.gameArray[0][4].contains.possibleStopPoint) {
+                    document.getElementById(flySchema[throwIntervalCounter - 1].positions.left).style.backgroundImage = `url('')`
+                    document.getElementById(flySchema[throwIntervalCounter - 1].positions.right).style.backgroundImage = `url('')`
+                    game.createPill()
+                    game.pillPosition(3, 4)
+                    pillFallInterval = setInterval(game.pillFall, 1000)
+                    document.addEventListener('keydown', game.pillMove)
+                    //generate new pill colcor 
+                    mario.catchPill()
+                } else {
+                    mario.looser()
+                }
             }
         }, 100)
-        //mario gif change here
     },
     looser: () => {
         document.querySelector('.marioContainer').style.background = `url('./images/sadMario.png')`
+    },
+    thrower: () => {
+        let marioThrowAnimationCounter = 0
+        let marioThrowAnimationInterval = setInterval(() => {
+            marioThrowAnimationCounter++
+            document.querySelector('.marioContainer').style.background = `url('./images/mario/mario${marioThrowAnimationCounter}.png`
+            if (marioThrowAnimationCounter === 8)
+                clearInterval(marioThrowAnimationInterval)
+
+
+        }, 40)
     }
 }
 window.addEventListener('DOMContentLoaded', (event) => {

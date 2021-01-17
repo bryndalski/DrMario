@@ -192,3 +192,28 @@ const flySchema = [{
     },
 
 ]
+
+const virusPositions = [{
+        top: "10px",
+        left: "80px"
+    },
+    {
+        top: "40px",
+        left: "140px"
+    },
+
+    {
+        top: "0px",
+        left: "30px"
+    },
+
+
+]
+
+const virusAnimator = [{
+
+
+    }
+
+
+]

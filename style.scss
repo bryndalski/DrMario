@@ -53,7 +53,7 @@ body {
     width: 300px;
     height: 150px;
     position: absolute;
-    left: 417px;
+    left: 412px;
     top: 40px;
     display: grid;
     grid-template-columns: repeat(10, 30px);
@@ -65,5 +65,23 @@ body {
 
     #animNet48 {
         transform: rotate(0deg) !important;
+    }
+}
+
+.magnidier {
+    //lupa 
+    position: absolute;
+    top: 364px;
+    left: 38px;
+    width: 224px;
+    height: 216px;
+    border-radius: 50%;
+    background-color: rebeccapurple;
+
+    div {
+        width: 60px;
+        height: 60px;
+        position: relative;
+        background-color: red;
     }
 }

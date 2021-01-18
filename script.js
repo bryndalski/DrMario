@@ -31,7 +31,7 @@ let pillFallInterval;
 const rotationAngles = ['rotate(0deg)', 'rotate(-180deg)', 'rotate(-90deg)', 'rotate(90deg)']
 const game = {
     gameArray: [],
-    points:0,
+    points: 0,
     level: 0,
     pillInfo: {},
     rotationAngle: 0,
@@ -346,6 +346,14 @@ const game = {
         }
     },
     killPill: (shouldDrop) => {
+        console.log(game.dropArray)
+        game.dropArray = Array.from(new Set(game.dropArray))
+        game.dropArray.forEach((index) => {
+            console.log(index)
+            if (index.contains.type === "virus")
+                game.points += 100
+        })
+        console.log(game.points)
         game.dropArray.forEach((element, counter) => {
             document.getElementById(element.squereId).style.backgroundImage = `url()`
             if (!element.contains.shouldFall)
@@ -478,7 +486,7 @@ const game = {
 
         }
     },
-    dropIt: () => {
+    dropIt: async () => {
         let shouldBeRefreshed = false
         let dropItInterval = setTimeout(() => {
                 for (let row = game.gameArray.length - 1; row > 0; row--) {
@@ -521,21 +529,21 @@ const game = {
                 }
                 if (shouldBeRefreshed) {
                     game.refreshNet()
-                    setTimeout(() => {
-                        game.fallCheck(false)
-                        game.dropIt()
-                    })
+                    // setTimeout(() => {
+                    game.dropIt()
+                    // })
                 } else {
-                    // clearInterval(dropItInterval)
+                    clearInterval(dropItInterval)
                     game.refreshNet()
-                    game.createPill()
-                    mario.throwPill({
-                        "left": game.pillSegmentLeft,
-                        'right': game.pillSegmentRight
-                    })
+                    game.fallCheck(true)
+                    // game.createPill()
+                    // mario.throwPill({
+                    //     "left": game.pillSegmentLeft,
+                    //     'right': game.pillSegmentRight
+                    // })
                 }
             },
-            1000)
+            10)
 
     },
     dropItArrayComponent: (endRow, endColumn, firstRow, firstColumn, heigherPill) => {

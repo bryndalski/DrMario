@@ -69,11 +69,29 @@ body {
   width: 224px;
   height: 216px;
   border-radius: 50%;
-  background-color: rebeccapurple;
 }
 .magnidier div {
   width: 60px;
   height: 60px;
   position: relative;
-  background-color: red;
+  background-repeat: no-repeat !important;
+  background-size: contain !important;
+}
+.magnidier .virusOne {
+  background-color: pink !important;
+  position: relative;
+  top: 10px;
+  left: 80px;
+}
+.magnidier .virusTwo {
+  position: relative;
+  top: 40px;
+  left: 140px;
+  background: url("./images/bl/4.png");
+}
+.magnidier .virusThree {
+  background-color: blue !important;
+  position: relative;
+  top: 0px;
+  left: 0px;
 }

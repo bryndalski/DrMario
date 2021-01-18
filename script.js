@@ -1,5 +1,6 @@
 'use strict'
-//TODO  dodaj czyszczenie , warnuki na dodawanie , obracanie , uważaj na wsuwanie i obracanie , pozycje w tablicy 
+//TODO napraw raz a dobrz algorytm zbijania 
+//TODO dodaj emergency refresh podczas kończenia opadania pigułki bo są bugi pod kontem wyglądu NIE algorytmiki 
 const pillsColors = [{
         color: "red",
         imgSource: `url('./images/redPill.png')`,
@@ -30,7 +31,8 @@ let pillFallInterval;
 const rotationAngles = ['rotate(0deg)', 'rotate(-180deg)', 'rotate(-90deg)', 'rotate(90deg)']
 const game = {
     gameArray: [],
-    level: 2,
+    points:0,
+    level: 0,
     pillInfo: {},
     rotationAngle: 0,
     dropArray: [],
@@ -161,12 +163,12 @@ const game = {
             } else {
                 game.setPillArray()
                 clearInterval(pillFallInterval)
-                game.fallCheck()
+                game.fallCheck(true)
             }
         } catch (err) {
             game.setPillArray()
             clearInterval(pillFallInterval)
-            game.fallCheck()
+            game.fallCheck(true)
         }
     },
     pillRotate: () => {
@@ -249,34 +251,36 @@ const game = {
         }
     },
     //*zbijania
-    fallCheck: () => {
+    fallCheck: (shouldNewPillBeCreated) => {
         let killArray = [],
             lastColor = "",
             dropCounter = 1,
             lastRow = 0,
             columnCounter = 0
+        //*poziome 
         game.gameArray.forEach((littleArray, row) => {
             littleArray.forEach((index) => { // check for horizontal drops  
                 if (lastRow !== row) {
+                    if (dropCounter >= 4)
+                        game.dropArray = game.dropArray.concat(killArray)
                     killArray = []
                     dropCounter = 1
                     lastRow = row
                 }
-                if (index.contains === undefined)
-                    if (index.contains.color !== undefined)
-                        if (index.contains.color === "" || index.contains.color !== lastColor) {
-                            lastColor = index.contains.color
-                            if (dropCounter >= 4) {
-                                dropCounter = 1
-                                game.dropArray = game.dropArray.concat(killArray)
-                                killArray = []
-                            } else {
-                                dropCounter = 1
-                                killArray = []
-                            }
-                            killArray.push(index)
-
+                if (index.contains.color !== undefined)
+                    if (index.contains.color === "" || index.contains.color !== lastColor) {
+                        lastColor = index.contains.color
+                        if (dropCounter >= 4) {
+                            dropCounter = 1
+                            game.dropArray = game.dropArray.concat(killArray)
+                            killArray = []
+                        } else {
+                            dropCounter = 1
+                            killArray = []
                         }
+                        killArray.push(index)
+
+                    }
                 else {
                     dropCounter++
                     killArray.push(index)
@@ -290,17 +294,20 @@ const game = {
                 }
             })
         })
-        //vertical check
+        //* działa zbijanie w pionie 
+        // vertical check
         game.gameArray[0].forEach((useless, counter) => {
             game.gameArray.forEach((index) => {
                 if (lastRow !== counter) {
+                    if (dropCounter >= 4)
+                        game.dropArray = game.dropArray.concat(killArray)
                     killArray = []
-                    dropCounter = 0
+                    dropCounter = 1
                     lastRow = counter
                     lastColor = ""
                 }
-                if (index[counter].contains.color !== undefined)
-                    if (index[counter].contains.color === "" || index[counter].contains.color !== lastColor) {
+                if (index[counter].contains.color !== undefined) {
+                    if (lastColor === "" || lastColor !== index[counter].contains.color) {
                         lastColor = index[counter].contains.color
                         if (dropCounter >= 4) {
                             dropCounter = 1
@@ -311,11 +318,10 @@ const game = {
                             killArray = []
                         }
                         killArray.push(index[counter])
-
+                    } else {
+                        dropCounter++
+                        killArray.push(index[counter])
                     }
-                else {
-                    dropCounter++
-                    killArray.push(index[counter])
                 } else {
                     lastColor = ""
                     if (dropCounter >= 4) {
@@ -327,18 +333,19 @@ const game = {
                         killArray = []
                     }
                 }
+
             })
         })
         if (game.dropArray.length !== 0)
-            game.killPill()
-        else {
+            game.killPill(shouldNewPillBeCreated)
+        else if (shouldNewPillBeCreated) {
             mario.throwPill({
                 "left": game.pillSegmentLeft,
                 'right': game.pillSegmentRight
             })
         }
     },
-    killPill: () => {
+    killPill: (shouldDrop) => {
         game.dropArray.forEach((element, counter) => {
             document.getElementById(element.squereId).style.backgroundImage = `url()`
             if (!element.contains.shouldFall)
@@ -363,7 +370,8 @@ const game = {
             }
         })
         game.dropArray = []
-        game.dropIt()
+        if (shouldDrop)
+            game.dropIt()
 
     },
     throwPill: () => {
@@ -476,7 +484,9 @@ const game = {
                 for (let row = game.gameArray.length - 1; row > 0; row--) {
                     for (let column = game.gameArray[row].length - 1; column >= 0; column--) {
                         //*warunek dotyczący odpadania pojedynczych części 
-                        if (game.gameArray[row][column].contains.possibleStopPoint && game.gameArray[row - 1][column].contains.shouldFall !== undefined && game.gameArray[row - 1][column].contains.shouldFall) {
+                        if (game.gameArray[row][column].contains.possibleStopPoint &&
+                            game.gameArray[row - 1][column].contains.shouldFall !== undefined &&
+                            game.gameArray[row - 1][column].contains.shouldFall) {
                             game.dropItArrayComponent(row, column, (row - 1), column, false)
                             shouldBeRefreshed = true
                         } else
@@ -486,9 +496,25 @@ const game = {
                                 game.gameArray[row - 1][column].contains.type == "pill" &&
                                 game.gameArray[row - 1][column].contains.rotationAngle === 'rotate(-90deg)'
                             ) {
-                                console.log("oj byq +1 chce działać ")
                                 game.dropItArrayComponent(row, column, (row - 1), column, true)
                                 game.dropItArrayComponent((row - 1), column, (row - 2), column, true)
+                                shouldBeRefreshed = true
+                            }
+                        else
+                            //*warunek opisujący opadanie pełnej tabletki w momencie ułożenia jej w poziomie 
+                            if (game.gameArray[row][column].contains.possibleStopPoint &&
+                                game.gameArray[row][column + 1] !== undefined &&
+                                game.gameArray[row][column + 1].contains.possibleStopPoint &&
+                                game.gameArray[row - 1][column].contains.type !== undefined &&
+                                game.gameArray[row - 1][column].contains.type == "pill" &&
+                                game.gameArray[row - 1][column].contains.rotationAngle === 'rotate(0deg)' &&
+                                game.gameArray[row - 1][column + 1] !== undefined &&
+                                game.gameArray[row - 1][column + 1].contains.type !== undefined &&
+                                game.gameArray[row - 1][column + 1].contains.type == "pill" &&
+                                game.gameArray[row - 1][column + 1].contains.rotationAngle === 'rotate(-180deg)'
+                            ) {
+                                game.dropItArrayComponent(row, column, (row - 1), column, true)
+                                game.dropItArrayComponent(row, (column + 1), (row - 1), (column + 1), true)
                                 shouldBeRefreshed = true
                             }
                     }
@@ -496,6 +522,7 @@ const game = {
                 if (shouldBeRefreshed) {
                     game.refreshNet()
                     setTimeout(() => {
+                        game.fallCheck(false)
                         game.dropIt()
                     })
                 } else {
@@ -608,6 +635,23 @@ const mario = {
         }, 40)
     }
 }
+//TODO dokończ 
+// const lupa = {
+//     circularMoveInterval: null,
+//     pillsAnimateInterval: null,
+//     pillAminateCounter: 0,
+//     startCarusell: () => {
+//         lupa.circularMoveInterval = setInterval(() => {
+//             document.querySelector(`.${virusAnimator.virusClasses[(pillAminateCounter%3)]}`).style.background = virusAnimator.virusClasses[(pillAminateCounter % 4)]
+//             document.querySelector(`.${virusAnimator.virusClasses[(pillAminateCounter%3)]}`).style.top = virusPositions[(pillAminateCounter % 3)].top
+//             document.querySelector(`.${virusAnimator.virusClasses[(pillAminateCounter%3)]}`).style.top = virusPositions[(pillAminateCounter % 3)].left
+
+//         })
+//     },
+//     redDead: (virusColorNum) => {},
+// }
+
+
 window.addEventListener('DOMContentLoaded', (event) => {
     game.createGame()
     game.createWeb()

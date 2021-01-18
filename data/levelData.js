@@ -1,4 +1,7 @@
 const gameLevelsSettings = [
+    levelZeroX = {
+        virusNumber: 1
+    },
     levelZero = {
         virusNumber: 4
     },

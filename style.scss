@@ -80,29 +80,64 @@ body {
     div {
         width: 60px;
         height: 60px;
-        position: relative;
+        position: absolute;
         background-repeat: no-repeat !important;
         background-size: contain !important;
     }
 
     .virusOne {
-        background-color: pink !important;
-        position: relative;
-        top: 10px;
-        left: 80px;
+        background: url('./images/yl/1.png');
+        // top: 40px;
+        // left: 35px;
     }
 
     .virusTwo {
-        position: relative;
-        top: 40px;
-        left: 140px;
-        background: url('./images/bl/4.png');
+        // top: 50px;
+        // left: 130px;
+        background: url('./images/bl/1.png');
     }
 
     .virusThree {
-        background-color: blue !important;
-        position: relative;
-        top: 0px;
-        left: 0px;
+        background: url('./images/rd/4.png');
+        // top: 125px;
+        // left: 80px;
+    }
+}
+
+.nameTop {
+    position: absolute;
+    left: 60px;
+    top: 170px
+}
+
+.nameScore {
+    position: absolute;
+    left: 60px;
+    top: 240px
+}
+
+.gameInfoContainer {
+    position: absolute;
+    width: 180px;
+    height: 270px;
+    left: 904px;
+    top: 216px;
+
+    .gameInfoLevel {
+        position: absolute;
+        left: 95px;
+        top: 70px;
+    }
+
+    .gameInfoSpeed {
+        position: absolute;
+        left: 95px;
+        top: 140px;
+    }
+
+    .virusNumber {
+        position: absolute;
+        left: 95px;
+        top: 210px;
     }
 }

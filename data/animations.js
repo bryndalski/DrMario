@@ -198,15 +198,57 @@ const virusPositions = [{
         left: "80px"
     },
     {
-        top: "40px",
+        top: "90px",
         left: "140px"
     },
-
     {
-        top: "0px",
+        top: "90px",
         left: "30px"
     },
 
+
+    {
+        top: "15px",
+        left: "75px"
+    }, {
+        top: "85px",
+        left: "140px"
+    }, {
+        top: "105px",
+        left: "35px"
+    },
+
+    {
+        top: "30px",
+        left: "60px"
+    }, {
+        top: "100   px",
+        left: "140px"
+    }, {
+        top: "105px",
+        left: "35px"
+    },
+
+    // {
+    //     top: "20px",
+    //     left: "60px"
+    // }, {
+    //     top: "70px",
+    //     left: "150px"
+    // }, {
+    //     top: "135px",
+    //     left: "60px"
+    // },
+    // {
+    //     top: "40px",
+    //     left: "35px"
+    // }, {
+    //     top: "50px",
+    //     left: "130px"
+    // }, {
+    //     top: "125px",
+    //     left: "80px"
+    // },
 
 ]
 

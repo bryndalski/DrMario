@@ -73,25 +73,51 @@ body {
 .magnidier div {
   width: 60px;
   height: 60px;
-  position: relative;
+  position: absolute;
   background-repeat: no-repeat !important;
   background-size: contain !important;
 }
 .magnidier .virusOne {
-  background-color: pink !important;
-  position: relative;
-  top: 10px;
-  left: 80px;
+  background: url("./images/yl/1.png");
 }
 .magnidier .virusTwo {
-  position: relative;
-  top: 40px;
-  left: 140px;
-  background: url("./images/bl/4.png");
+  background: url("./images/bl/1.png");
 }
 .magnidier .virusThree {
-  background-color: blue !important;
-  position: relative;
-  top: 0px;
-  left: 0px;
+  background: url("./images/rd/4.png");
+}
+
+.nameTop {
+  position: absolute;
+  left: 60px;
+  top: 170px;
+}
+
+.nameScore {
+  position: absolute;
+  left: 60px;
+  top: 240px;
+}
+
+.gameInfoContainer {
+  position: absolute;
+  width: 180px;
+  height: 270px;
+  left: 904px;
+  top: 216px;
+}
+.gameInfoContainer .gameInfoLevel {
+  position: absolute;
+  left: 95px;
+  top: 70px;
+}
+.gameInfoContainer .gameInfoSpeed {
+  position: absolute;
+  left: 95px;
+  top: 140px;
+}
+.gameInfoContainer .virusNumber {
+  position: absolute;
+  left: 95px;
+  top: 210px;
 }

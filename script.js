@@ -1,6 +1,6 @@
 'use strict'
-//TODO napraw raz a dobrz algorytm zbijania 
-//TODO dodaj emergency refresh podczas kończenia opadania pigułki bo są bugi pod kontem wyglądu NIE algorytmiki 
+//TODO sprawdź co i jak z wirusami i zbijaniem w rogach
+
 const pillsColors = [{
         color: "red",
         imgSource: `url('./images/redPill.png')`,
@@ -32,12 +32,14 @@ const rotationAngles = ['rotate(0deg)', 'rotate(-180deg)', 'rotate(-90deg)', 'ro
 const game = {
     gameArray: [],
     points: 0,
-    level: 0,
+    level: 10,
     pillInfo: {},
     rotationAngle: 0,
     dropArray: [],
     pillSegmentLeft: {},
     pillSegmentRight: {},
+    topScpre: [],
+    virusNumber: "",
     createGame: () => { // tworzy całą plansze z wyj. siatki ( dane bierze sobie z obiektu gameStartClass)
         game.gameArray = []
         game.dropArray = []
@@ -75,6 +77,16 @@ const game = {
                 document.querySelector('.netName').appendChild(webDiv)
             }
         }
+    },
+    createNumberFrame: (parentName, idPrefix, digitNumber, nuller) => {
+        for (let i = 0; i < digitNumber; i++) {
+            let digit = document.createElement('img')
+            digit.id = idPrefix + i
+            if (nuller)
+                digit.src = './images/cyfry/0.png'
+            document.querySelector(`.${parentName}`).appendChild(digit)
+        }
+
     },
     //* Zabawa z tabletkami 
     createPill: () => {
@@ -249,7 +261,10 @@ const game = {
             possibleRotation: false,
             possibleStopPoint: false
         }
+        game.refreshNet() //!! zabezpieczenie odświeża po umieszczeniu tabletki w razie gdy animacja nie nadąża nad tablicą
+
     },
+
     //*zbijania
     fallCheck: (shouldNewPillBeCreated) => {
         let killArray = [],
@@ -346,14 +361,15 @@ const game = {
         }
     },
     killPill: (shouldDrop) => {
-        console.log(game.dropArray)
         game.dropArray = Array.from(new Set(game.dropArray))
         game.dropArray.forEach((index) => {
-            console.log(index)
-            if (index.contains.type === "virus")
+            if (index.contains.type === "virus") {
                 game.points += 100
+                game.setNumber('nameScore', game.points)
+                game.virusNumber--
+                game.setNumber('virusNumber', game.virusNumber)
+            }
         })
-        console.log(game.points)
         game.dropArray.forEach((element, counter) => {
             document.getElementById(element.squereId).style.backgroundImage = `url()`
             if (!element.contains.shouldFall)
@@ -576,8 +592,21 @@ const game = {
             }
         }
 
-    }
+    },
+    //*wyniki zbić
+    setNumber: (parent, score) => {
+        let childsArray = Array.from(document.querySelector(`.${parent}`).childNodes).map(item => item.id)
+        score = Array.from(score.toString())
+        for (let indexes = 0; indexes < childsArray.length; indexes++)
+            if (score[indexes] == undefined)
+                score.unshift(0)
+        score.forEach((index, counter) => {
+            document.getElementById(childsArray[counter]).src = `./images/cyfry/${index}.png`
+        })
+    },
+    heighScore: () => {
 
+    }
 }
 const mario = {
     createAnimationNet: () => {
@@ -628,8 +657,13 @@ const mario = {
             }
         }, 100)
     },
+    //*Podmienia na mario przegrywa + sprawdza i nadaje top wyniki
     looser: () => {
         document.querySelector('.marioContainer').style.background = `url('./images/sadMario.png')`
+        if (localStorage.getItem("topScore") == null || game.points > localStorage.getItem("topScore")) {
+            localStorage.setItem("topScore", game.points)
+            game.setNumber('nameTop', game.points)
+        }
     },
     thrower: () => {
         let marioThrowAnimationCounter = 0
@@ -644,26 +678,55 @@ const mario = {
     }
 }
 //TODO dokończ 
-// const lupa = {
-//     circularMoveInterval: null,
-//     pillsAnimateInterval: null,
-//     pillAminateCounter: 0,
-//     startCarusell: () => {
-//         lupa.circularMoveInterval = setInterval(() => {
-//             document.querySelector(`.${virusAnimator.virusClasses[(pillAminateCounter%3)]}`).style.background = virusAnimator.virusClasses[(pillAminateCounter % 4)]
-//             document.querySelector(`.${virusAnimator.virusClasses[(pillAminateCounter%3)]}`).style.top = virusPositions[(pillAminateCounter % 3)].top
-//             document.querySelector(`.${virusAnimator.virusClasses[(pillAminateCounter%3)]}`).style.top = virusPositions[(pillAminateCounter % 3)].left
+const lupa = {
+    circularMoveInterval: null,
+    pillsAnimateInterval: null,
+    pillAminateCounter: 0,
+    combinations: virusPositions.map((item, counter) => {
+        return counter
+    }),
+    startCarusell: () => {
+        lupa.circularMoveInterval = setInterval(() => {
 
-//         })
-//     },
-//     redDead: (virusColorNum) => {},
-// }
+            // document.querySelector(`.${virusAnimator.virusClasses[0]}`).style.background = virusAnimator.blue[(lupa.pillAminateCounter % 4)]
+            // document.querySelector(`.${virusAnimator.virusClasses[1]}`).style.background = virusAnimator.red[(lupa.pillAminateCounter % 4)]
+            // document.querySelector(`.${virusAnimator.virusClasses[2]}`).style.background = virusAnimator.yellow[(lupa.pillAminateCounter % 4)]
+            if ((lupa.pillAminateCounter % 3) == 0) {
+                for (let i = 0; i < 3; i++) {
+                    document.querySelector(`.${virusAnimator.virusClasses[i]}`).style.top = virusPositions[lupa.combinations[i]].top
+                    document.querySelector(`.${virusAnimator.virusClasses[i]}`).style.left = virusPositions[lupa.combinations[i]].left
+                }
+                lupa.combinations.unshift(lupa.combinations.pop())
+            }
+            lupa.pillAminateCounter++
+        }, 500)
+    },
+
+}
 
 
 window.addEventListener('DOMContentLoaded', (event) => {
-    game.createGame()
+    game.virusNumber = gameLevelsSettings[game.level].virusNumber,
+        game.createGame()
     game.createWeb()
     mario.createAnimationNet()
+    game.createNumberFrame('nameTop', 'top', 7, true)
+    game.createNumberFrame('nameScore', 'score', 7, true)
+    game.createNumberFrame('gameInfoLevel', 'lvlInfo', 2, true)
+    game.createNumberFrame('gameInfoSpeed', 'speedInfo', 2, true)
+    game.createNumberFrame('virusNumber', 'virNumber', 2, true)
     game.createVirusMap()
     game.refreshNet()
+    lupa.startCarusell()
+    //* związane z nadawaniem wszyskich leveli i wirusów wyjściowo
+    if (localStorage.getItem("topScore") == null)
+        game.setNumber('nameTop', 0)
+    else
+        game.setNumber('nameTop', localStorage.getItem("topScore"))
+    game.setNumber('gameInfoLevel', game.level)
+    game.setNumber('gameInfoLevel', game.level)
+    game.setNumber('virusNumber', game.virusNumber)
+
+
+
 });

@@ -34,7 +34,7 @@ const rotationAngles = ['rotate(0deg)', 'rotate(-180deg)', 'rotate(-90deg)', 'ro
 const game = {
     gameArray: [],
     points: 0,
-    level: 10,
+    level: 7,
     pillInfo: {},
     rotationAngle: 0,
     dropArray: [],
@@ -314,7 +314,7 @@ const game = {
         //* działa zbijanie w pionie 
         // vertical check
         game.gameArray[0].forEach((useless, counter) => {
-            game.gameArray.forEach((index) => {
+            game.gameArray.forEach((index, miniCountert) => {
                 if (lastRow !== counter) {
                     if (dropCounter >= 4)
                         game.dropArray = game.dropArray.concat(killArray)
@@ -350,6 +350,15 @@ const game = {
                         killArray = []
                     }
                 }
+                if (miniCountert === 15 && counter === 7)
+                    if (dropCounter >= 4) {
+                        dropCounter = 1
+                        game.dropArray = game.dropArray.concat(killArray)
+                        killArray = []
+                    } else {
+                        dropCounter = 1
+                        killArray = []
+                    }
 
             })
         })
@@ -374,7 +383,19 @@ const game = {
         })
 
         game.dropArray.forEach((element) => {
-            document.getElementById(element.squereId).style.backgroundImage = `url()`
+            document.getElementById(element.squereId).style.backgroundImage = ``
+            document.getElementById(element.squereId).style.transform = ``
+            switch (element.contains.color) {
+                case "yellow":
+                    document.getElementById(element.squereId).style.backgroundImage = `url('./images/yellowDestroy.gif')`
+                    break
+                case "red":
+                    document.getElementById(element.squereId).style.backgroundImage = `url('./images/redDestroy.gif')`
+                    break
+                case "blue":
+                    document.getElementById(element.squereId).style.backgroundImage = `url('./images/blueDestroy.gif')`
+                    break
+            }
             if (!element.contains.shouldFall)
                 switch (element.contains.rotationAngle) {
                     case 'rotate(0deg)': //+ index
@@ -397,15 +418,11 @@ const game = {
             }
         })
         //pora na gifa
-        game.dropArray.forEach((element) => {
-            console.log(document.getElementById(element.squereId))
-            document.getElementById(element.squereId).style.backgroundImage = `url('./images/redDestroy.gif')`
-        })
         game.dropArray = []
-        // setTimeout(() => {
-        if (shouldDrop)
-            game.dropIt()
-        // }, 2000)
+        setTimeout(() => {
+            if (shouldDrop)
+                game.dropIt()
+        }, 1000)
 
 
     },
@@ -451,8 +468,8 @@ const game = {
             while (found)
             if (i === gameLevelsSettings[game.level].virusNumber - 1) { // interval has ended 
                 game.refreshNet()
-                game.pillSegmentLeft = pillsColors[Math.floor(Math.random() * (3))] //TODO uncomment 
-                game.pillSegmentRight = pillsColors[Math.floor(Math.random() * (3))] //!!! uncomment 
+                game.pillSegmentLeft = pillsColors[Math.floor(Math.random() * (3))]
+                game.pillSegmentRight = pillsColors[Math.floor(Math.random() * (3))]
                 game.createPill()
                 mario.throwPill({
                     "left": game.pillSegmentLeft,
@@ -466,7 +483,7 @@ const game = {
         for (let i = 0; i < game.gameArray.length; i++) {
             for (let j = 0; j < game.gameArray[i].length; j++) {
                 try {
-                    if (game.gameArray[i][j].contains.type === "virus") //!!! wywala undefinded nie może odczytać type of ::::::: 
+                    if (game.gameArray[i][j].contains.type === "virus")
                         switch (game.gameArray[i][j].contains.color) {
                             case "red":
                                 document.getElementById(game.gameArray[i][j].squereId).style.backgroundImage = virusColor[0].imagine
@@ -513,7 +530,7 @@ const game = {
 
         }
     },
-    dropIt: async () => {
+    dropIt: () => {
         let shouldBeRefreshed = false
         let dropItInterval = setTimeout(() => {
                 for (let row = game.gameArray.length - 1; row > 0; row--) {
@@ -693,9 +710,9 @@ const lupa = {
     startCarusell: () => {
         lupa.circularMoveInterval = setInterval(() => {
 
-            // document.querySelector(`.${virusAnimator.virusClasses[0]}`).style.background = virusAnimator.blue[(lupa.pillAminateCounter % 4)]
-            // document.querySelector(`.${virusAnimator.virusClasses[1]}`).style.background = virusAnimator.red[(lupa.pillAminateCounter % 4)]
-            // document.querySelector(`.${virusAnimator.virusClasses[2]}`).style.background = virusAnimator.yellow[(lupa.pillAminateCounter % 4)]
+            document.querySelector(`.${virusAnimator.virusClasses[0]}`).style.background = virusAnimator.blue[(lupa.pillAminateCounter % 4)]
+            document.querySelector(`.${virusAnimator.virusClasses[1]}`).style.background = virusAnimator.red[(lupa.pillAminateCounter % 4)]
+            document.querySelector(`.${virusAnimator.virusClasses[2]}`).style.background = virusAnimator.yellow[(lupa.pillAminateCounter % 4)]
             if ((lupa.pillAminateCounter % 3) == 0) {
                 for (let i = 0; i < 3; i++) {
                     document.querySelector(`.${virusAnimator.virusClasses[i]}`).style.top = virusPositions[lupa.combinations[i]].top

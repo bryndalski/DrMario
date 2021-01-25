@@ -1,5 +1,7 @@
 'use strict'
 //TODO sprawdź co i jak z wirusami i zbijaniem w rogach
+//TODO dodaj anicaje zbijania 
+//TODO dodaj przejśćia leveli
 
 const pillsColors = [{
         color: "red",
@@ -361,7 +363,7 @@ const game = {
         }
     },
     killPill: (shouldDrop) => {
-        game.dropArray = Array.from(new Set(game.dropArray))
+        game.dropArray = Array.from(new Set(game.dropArray)) // set zawieta tylko unikalne wartości => eliminuje powtórki przy skosach
         game.dropArray.forEach((index) => {
             if (index.contains.type === "virus") {
                 game.points += 100
@@ -370,7 +372,8 @@ const game = {
                 game.setNumber('virusNumber', game.virusNumber)
             }
         })
-        game.dropArray.forEach((element, counter) => {
+
+        game.dropArray.forEach((element) => {
             document.getElementById(element.squereId).style.backgroundImage = `url()`
             if (!element.contains.shouldFall)
                 switch (element.contains.rotationAngle) {
@@ -393,9 +396,17 @@ const game = {
                 possibleStopPoint: true
             }
         })
+        //pora na gifa
+        game.dropArray.forEach((element) => {
+            console.log(document.getElementById(element.squereId))
+            document.getElementById(element.squereId).style.backgroundImage = `url('./images/redDestroy.gif')`
+        })
         game.dropArray = []
+        // setTimeout(() => {
         if (shouldDrop)
             game.dropIt()
+        // }, 2000)
+
 
     },
     throwPill: () => {
@@ -545,18 +556,12 @@ const game = {
                 }
                 if (shouldBeRefreshed) {
                     game.refreshNet()
-                    // setTimeout(() => {
                     game.dropIt()
-                    // })
                 } else {
                     clearInterval(dropItInterval)
                     game.refreshNet()
                     game.fallCheck(true)
-                    // game.createPill()
-                    // mario.throwPill({
-                    //     "left": game.pillSegmentLeft,
-                    //     'right': game.pillSegmentRight
-                    // })
+
                 }
             },
             10)

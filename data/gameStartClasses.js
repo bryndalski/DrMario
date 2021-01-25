@@ -27,7 +27,13 @@ const gameStartClass = {
     },
     animationNet: {
         container: "pillFlyContainer",
+    },
+    comunicat: {
+        container: "comunicatContainer",
+        showGameOver: "gameOver",
+        ShowNextLevel: "nextLevel",
     }
+
 
 
 }

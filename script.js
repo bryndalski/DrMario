@@ -1,8 +1,6 @@
 'use strict'
-//TODO sprawdź co i jak z wirusami i zbijaniem w rogach
-//TODO dodaj anicaje zbijania 
 //TODO dodaj przejśćia leveli
-
+//TODO dodaj inne gify dla zbicia wirusa 
 const pillsColors = [{
         color: "red",
         imgSource: `url('./images/redPill.png')`,
@@ -39,7 +37,7 @@ const rotationAngles = ['rotate(0deg)', 'rotate(-180deg)', 'rotate(-90deg)', 'ro
 const game = {
     gameArray: [],
     points: 0,
-    level: 20,
+    level: 0,
     pillInfo: {},
     rotationAngle: 0,
     dropArray: [],
@@ -153,7 +151,7 @@ const game = {
             } catch (err) {}
         }
         //lewo rotacja
-        if (e.keyCode === 38 || e.keyCode === 87) { // rotate left //TODO dodaj warunki 
+        if (e.keyCode === 38 || e.keyCode === 87) { // rotate left 
             game.rotationAngle++
             if (game.rotationAngle === 4)
                 game.rotationAngle = 0
@@ -161,7 +159,7 @@ const game = {
                 game.rotationAngle--
         }
         //w prawo rotacja
-        if (e.keyCode === 16) { // rotate right  //TODO dodaj warunki 
+        if (e.keyCode === 16) { // rotate right  
             game.rotationAngle--
             if (game.rotationAngle === -1)
                 game.rotationAngle = 3
@@ -378,15 +376,19 @@ const game = {
     },
     killPill: (shouldDrop) => {
         game.dropArray = Array.from(new Set(game.dropArray)) // set zawieta tylko unikalne wartości => eliminuje powtórki przy skosach
+        let stop = false
         game.dropArray.forEach((index) => {
             if (index.contains.type === "virus") {
                 game.points += 100
                 game.setNumber('nameScore', game.points)
                 game.virusNumber--
                 game.setNumber('virusNumber', game.virusNumber)
+                //* zbicia wirusów 
+                lupa.destroyVirus(index.contains.color)
+                stop = true
             }
         })
-
+        if (stop) setTimeout(lupa.startCarusell, 2000)
         game.dropArray.forEach((element) => {
             document.getElementById(element.squereId).style.backgroundImage = ``
             document.getElementById(element.squereId).style.transform = ``
@@ -576,14 +578,19 @@ const game = {
                             }
                     }
                 }
-                if (shouldBeRefreshed) {
-                    game.refreshNet()
-                    game.dropIt()
-                } else {
-                    clearInterval(dropItInterval)
-                    game.refreshNet()
-                    game.fallCheck(true)
+                if (game.virusNumber !== 0)
+                    if (shouldBeRefreshed) {
+                        game.refreshNet()
+                        game.dropIt()
+                    } else {
+                        clearInterval(dropItInterval)
+                        game.refreshNet()
+                        game.fallCheck(true)
 
+                    }
+                else {
+                    game.refreshNet()
+                    game.newLevel()
                 }
             },
             10)
@@ -633,6 +640,26 @@ const game = {
     },
     //*generuje nowy poziom
     newLevel: () => {
+
+        document.querySelector('.nextLevel').style.visibility = "visible"
+        setTimeout(() => {
+            document.querySelector('.nextLevel').style.visibility = "hidden"
+            game.level++
+            game.gameArray = []
+            game.virusNumber = gameLevelsSettings[game.level].virusNumber
+            game.createWeb()
+            game.createVirusMap()
+            game.refreshNet()
+            game.gameArray.forEach((little) => {
+                little.forEach((item) => {
+                    document.getElementById(item.squereId).style.transform = rotationAngles[0]
+                })
+            })
+            //* związane z nadawaniem wszyskich leveli i wirusów wyjściowo
+            game.setNumber('gameInfoLevel', game.level)
+            game.setNumber('virusNumber', game.virusNumber)
+        }, 1000)
+
 
     }
 }
@@ -716,30 +743,37 @@ const lupa = {
     combinations: virusPositions.map((item, counter) => {
         return counter
     }),
-    startCarusell: () => {
-        lupa.circularMoveInterval = setInterval(() => {
-            // document.querySelector(`.${virusAnimator.virusClasses[0]}`).style.background = virusAnimator.blue[(lupa.pillAminateCounter % 4)]
-            // document.querySelector(`.${virusAnimator.virusClasses[1]}`).style.background = virusAnimator.red[(lupa.pillAminateCounter % 4)]
-            // document.querySelector(`.${virusAnimator.virusClasses[2]}`).style.background = virusAnimator.yellow[(lupa.pillAminateCounter % 4)]
-            if ((lupa.pillAminateCounter % 3) == 0) {
-                for (let i = 0; i < 3; i++) {
-                    document.querySelector(`.${virusAnimator.virusClasses[i]}`).style.top = virusPositions[lupa.combinations[i]].top
-                    document.querySelector(`.${virusAnimator.virusClasses[i]}`).style.left = virusPositions[lupa.combinations[i]].left
-                }
-                lupa.combinations.unshift(lupa.combinations.pop())
+    lupaCarusel: () => {
+        if ((lupa.pillAminateCounter % 3) == 0) {
+            for (let i = 0; i < 3; i++) {
+                document.querySelector(`.${virusAnimator.virusClasses[i]}`).style.top = virusPositions[lupa.combinations[i]].top
+                document.querySelector(`.${virusAnimator.virusClasses[i]}`).style.left = virusPositions[lupa.combinations[i]].left
             }
-            lupa.pillAminateCounter++
-        }, 500)
+            lupa.combinations.unshift(lupa.combinations.pop())
+        }
+        lupa.pillAminateCounter++
+    },
+    startCarusell: () => {
+        lupa.circularMoveInterval = setInterval(lupa.lupaCarusel, 1000)
     },
     destroyVirus: (color) => {
+        clearInterval(lupa.circularMoveInterval)
         switch (color) {
             case "red":
+                document.querySelector(`.${virusAnimator.virusClasses[2]}`).style.background = `url('./images/deadVirus1.gif')`
+                setTimeout(() => document.querySelector(`.${virusAnimator.virusClasses[2]}`).style.background = `url('./images/rd/redVirus.gif')`, 2000)
                 break
             case "blue":
+                document.querySelector(`.${virusAnimator.virusClasses[0]}`).style.background = `url('./images/deadVirus2.gif')`
+                setTimeout(() => document.querySelector(`.${virusAnimator.virusClasses[0]}`).style.background = `url('./images/bl/blueVirus.gif')`, 2000)
                 break
             case "yellow":
+                document.querySelector(`.${virusAnimator.virusClasses[1]}`).style.background = `url('./images/deadVirus3.gif')`
+                setTimeout(() => document.querySelector(`.${virusAnimator.virusClasses[1]}`).style.background = `url('./images/yl/yellowVirus.gif')`, 2000)
+
                 break
         }
+        lupa.circularMoveInterval = null
     }
 
 }
@@ -764,9 +798,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
     else
         game.setNumber('nameTop', localStorage.getItem("topScore"))
     game.setNumber('gameInfoLevel', game.level)
-    game.setNumber('gameInfoLevel', game.level)
     game.setNumber('virusNumber', game.virusNumber)
-
+    console.log(game.gameArray)
 
 
 });

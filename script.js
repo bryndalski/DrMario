@@ -37,7 +37,7 @@ const rotationAngles = ['rotate(0deg)', 'rotate(-180deg)', 'rotate(-90deg)', 'ro
 const game = {
     gameArray: [],
     points: 0,
-    level: 0,
+    level: 15,
     pillInfo: {},
     rotationAngle: 0,
     dropArray: [],
@@ -152,6 +152,15 @@ const game = {
         }
         //lewo rotacja
         if (e.keyCode === 38 || e.keyCode === 87) { // rotate left 
+            if (
+                (game.pillInfo.lastPositions.left % 10) === 7 &&
+                (game.pillInfo.lastPositions.right % 10) === 7
+            ) {
+                let cstEvent = new Event('keydown')
+                cstEvent.keyCode = 37
+                document.dispatchEvent(cstEvent)
+            }
+            //? normalna część nie rusz 
             game.rotationAngle++
             if (game.rotationAngle === 4)
                 game.rotationAngle = 0
@@ -160,6 +169,14 @@ const game = {
         }
         //w prawo rotacja
         if (e.keyCode === 16) { // rotate right  
+            if (
+                (game.pillInfo.lastPositions.left % 10) === 7 &&
+                (game.pillInfo.lastPositions.right % 10) === 7
+            ) {
+                let cstEvent = new Event('keydown')
+                cstEvent.keyCode = 37
+                document.dispatchEvent(cstEvent)
+            }
             game.rotationAngle--
             if (game.rotationAngle === -1)
                 game.rotationAngle = 3
@@ -250,6 +267,7 @@ const game = {
     },
     //* moment końca operowania na pigułce 
     setPillArray: () => {
+        document.removeEventListener('keydown', game.pillMove)
         game.gameArray[Math.floor(game.pillInfo.lastPositions.left / 10)][game.pillInfo.lastPositions.left % 10].contains = {
             type: "pill",
             color: game.pillInfo.leftSegment.color,
@@ -269,7 +287,6 @@ const game = {
         game.refreshNet() //!! zabezpieczenie odświeża po umieszczeniu tabletki w razie gdy animacja nie nadąża nad tablicą
 
     },
-
     //*zbijania
     fallCheck: (shouldNewPillBeCreated) => {
         let killArray = [],
@@ -703,7 +720,7 @@ const mario = {
                     game.createPill()
                     game.pillPosition(3, 4)
                     pillFallInterval = setInterval(game.pillFall, 1000)
-                    document.addEventListener('keydown', game.pillMove)
+                    document.addEventListener('keydown', game.pillMove) //!!!! WYŁ MOŻLIWOŚC RUCHU      
                     //generate new pill colcor 
                     mario.catchPill()
                 } else {
@@ -735,7 +752,6 @@ const mario = {
     }
 
 }
-//TODO dokończ 
 const lupa = {
     circularMoveInterval: null,
     pillsAnimateInterval: null,
@@ -799,7 +815,5 @@ window.addEventListener('DOMContentLoaded', (event) => {
         game.setNumber('nameTop', localStorage.getItem("topScore"))
     game.setNumber('gameInfoLevel', game.level)
     game.setNumber('virusNumber', game.virusNumber)
-    console.log(game.gameArray)
-
-
+    lupa.lupaCarusel()
 });

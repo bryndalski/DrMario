@@ -222,7 +222,7 @@ const virusPositions = [{
         top: "30px",
         left: "60px"
     }, {
-        top: "100   px",
+        top: "100px",
         left: "140px"
     }, {
         top: "105px",

@@ -20,16 +20,21 @@ const pillsColors = [{
 const virusColor = [{
     color: "red",
     imagine: `url('./images/redVirus.gif')`,
-    dead: `url('./images/redVirus.gif')`
+    dead: `url('./images/redDestroy.gif')`,
+    deadVirus: `url('./images/redVirusDestroy.gif')`
+
 }, {
     color: "blue",
     imagine: `url('./images/blueVirus.gif')`,
-    dead: `url('./images/redVirus.gif')`
+    dead: `url('./images/blueDestroy.gif')`,
+    deadVirus: `url('./images/blueVirusDestroy.gif')`
 
 }, {
     color: "yellow",
     imagine: `url('./images/yellowVirus.gif')`,
-    dead: `url('./images/redVirus.gif')`
+    dead: `url('./images/yellowDestroy.gif')`,
+    deadVirus: `url('./images/yellowVirusDestroy.gif')`
+
 
 }]
 let pillFallInterval;
@@ -37,7 +42,7 @@ const rotationAngles = ['rotate(0deg)', 'rotate(-180deg)', 'rotate(-90deg)', 'ro
 const game = {
     gameArray: [],
     points: 0,
-    level: 15,
+    level: 5,
     pillInfo: {},
     rotationAngle: 0,
     dropArray: [],
@@ -134,7 +139,7 @@ const game = {
     },
     //* Pozycjownowanie tabletek
     pillMove: (e) => {
-        if (e.keyCode === 37 || e.keyCode === 65) { // move Left
+        if (e.keyCode === 37 || e.keyCode === 65) { // move Left    
             try {
                 if ((game.pillInfo.lastPositions.left - 1) % 10 >= 0 && (game.pillInfo.lastPositions.left - 1) % 10 <= 7 && game.gameArray[Math.floor((game.pillInfo.lastPositions.left - 1) / 10)][(game.pillInfo.lastPositions.left - 1) % 10].contains.possibleRotation && game.gameArray[Math.floor((game.pillInfo.lastPositions.right - 1) / 10)][(game.pillInfo.lastPositions.right - 1) % 10].contains.possibleRotation) {
                     game.pillPosition((game.pillInfo.lastPositions.left - 1), (game.pillInfo.lastPositions.right - 1))
@@ -267,7 +272,7 @@ const game = {
     },
     //* moment końca operowania na pigułce 
     setPillArray: () => {
-        document.removeEventListener('keydown', game.pillMove)
+        document.removeEventListener('keydown', game.pillMove) //!!!! zostaw bo inaczej będzie śmmieszny bug :)
         game.gameArray[Math.floor(game.pillInfo.lastPositions.left / 10)][game.pillInfo.lastPositions.left % 10].contains = {
             type: "pill",
             color: game.pillInfo.leftSegment.color,
@@ -411,13 +416,13 @@ const game = {
             document.getElementById(element.squereId).style.transform = ``
             switch (element.contains.color) {
                 case "yellow":
-                    document.getElementById(element.squereId).style.backgroundImage = `url('./images/yellowDestroy.gif')`
+                    document.getElementById(element.squereId).style.backgroundImage = (element.contains.type == "virus") ? virusColor[2].deadVirus : virusColor[2].dead
                     break
                 case "red":
-                    document.getElementById(element.squereId).style.backgroundImage = `url('./images/redDestroy.gif')`
+                    document.getElementById(element.squereId).style.backgroundImage = (element.contains.type == "virus") ? virusColor[0].deadVirus : virusColor[0].dead
                     break
                 case "blue":
-                    document.getElementById(element.squereId).style.backgroundImage = `url('./images/blueDestroy.gif')`
+                    document.getElementById(element.squereId).style.backgroundImage = (element.contains.type == "virus") ? virusColor[1].deadVirus : virusColor[1].dead
                     break
             }
             if (!element.contains.shouldFall)
@@ -479,17 +484,56 @@ const game = {
                 let X = Math.floor(Math.random() * 11) + 5
                 let Y = Math.floor(Math.random() * 8)
                 if (Object.keys(game.gameArray[X][Y].contains).length == 2) {
-                    found = false
-                    game.gameArray[X][Y].contains = {
-                        possibleRotation: false,
-                        possibleStopPoint: false,
-                        type: "virus",
-                        color: virusColor[intervalCounter].color,
-                        imagine: virusColor[intervalCounter].imagine
+                    let szukacz = 0;
+                    let colorCounter = 1
+                    // check horizontal
+                    game.gameArray[X].some((index, counter) => {
+                        try {
+                            if (index.contains.color == virusColor[intervalCounter].color) {
+                                colorCounter++
+                                if (colorCounter == 3) {
+                                    return colorCounter
+                                }
+                            } else {
+                                colorCounter = 1
+                            }
+                        } catch (err) {}
+                    })
+                    // check vertical //jest to dłuższy warunek i nie ma sensu sprawdzać go za każdym razem jeśli sam w sobie 1 t eliminuje
+                    if (colorCounter != 3) {
+                        colorCounter = 1
+                        for (let i = 0; i < 13; i++) {
+                            try {
+                                if (game.gameArray[i][Y].contains.color == virusColor[intervalCounter].color) {
+                                    colorCounter++
+                                    if (colorCounter == 3)
+                                        return colorCounter
+                                } else {
+                                    colorCounter = 1
+                                }
+                            } catch (err) {
+                                colorCounter = 1
+                            }
+                        }
                     }
+                    szukacz++
+                    if (colorCounter != 3) {
+                        console.log(szukacz);
+                        found = false
+                        szukacz = 0
+                        game.gameArray[X][Y].contains = {
+                            possibleRotation: false,
+                            possibleStopPoint: false,
+                            type: "virus",
+                            color: virusColor[intervalCounter].color,
+                            imagine: virusColor[intervalCounter].imagine
+                        }
+                    }
+
                 }
             }
             while (found)
+
             if (i === gameLevelsSettings[game.level].virusNumber - 1) { // interval has ended 
                 game.refreshNet()
                 game.pillSegmentLeft = pillsColors[Math.floor(Math.random() * (3))]
@@ -816,4 +860,5 @@ window.addEventListener('DOMContentLoaded', (event) => {
     game.setNumber('gameInfoLevel', game.level)
     game.setNumber('virusNumber', game.virusNumber)
     lupa.lupaCarusel()
+
 });

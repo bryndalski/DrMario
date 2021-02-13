@@ -1,6 +1,5 @@
 'use strict'
 //TODO dodaj przejśćia leveli
-//TODO dodaj inne gify dla zbicia wirusa 
 const pillsColors = [{
         color: "red",
         imgSource: `url('./images/redPill.png')`,
@@ -42,7 +41,7 @@ const rotationAngles = ['rotate(0deg)', 'rotate(-180deg)', 'rotate(-90deg)', 'ro
 const game = {
     gameArray: [],
     points: 0,
-    level: 5,
+    level: 2,
     pillInfo: {},
     rotationAngle: 0,
     dropArray: [],
@@ -50,6 +49,7 @@ const game = {
     pillSegmentRight: {},
     topScpre: [],
     virusNumber: "",
+    repeate: null,
     createGame: () => { // tworzy całą plansze z wyj. siatki ( dane bierze sobie z obiektu gameStartClass)
         game.gameArray = []
         game.dropArray = []
@@ -137,61 +137,94 @@ const game = {
             right: rightPill
         }
     },
+    pillFlag(e) {
+        clearInterval(game.repeate)
+        document.addEventListener('keydown', game.pillMove)
+        game.repeate = null
+    },
     //* Pozycjownowanie tabletek
     pillMove: (e) => {
-        if (e.keyCode === 37 || e.keyCode === 65) { // move Left    
-            try {
-                if ((game.pillInfo.lastPositions.left - 1) % 10 >= 0 && (game.pillInfo.lastPositions.left - 1) % 10 <= 7 && game.gameArray[Math.floor((game.pillInfo.lastPositions.left - 1) / 10)][(game.pillInfo.lastPositions.left - 1) % 10].contains.possibleRotation && game.gameArray[Math.floor((game.pillInfo.lastPositions.right - 1) / 10)][(game.pillInfo.lastPositions.right - 1) % 10].contains.possibleRotation) {
-                    game.pillPosition((game.pillInfo.lastPositions.left - 1), (game.pillInfo.lastPositions.right - 1))
-                    game.pillInfo.unTransformedPosition.left -= 1
-                }
-            } catch (err) {}
-        }
-        if (e.keyCode === 39 || e.keyCode === 68) { // move Right
-            try {
-                if ((game.pillInfo.lastPositions.right + 1) % 10 <= 7 && game.gameArray[Math.floor((game.pillInfo.lastPositions.left + 1) / 10)][(game.pillInfo.lastPositions.left + 1) % 10].contains.possibleRotation && game.gameArray[Math.floor((game.pillInfo.lastPositions.right + 1) / 10)][(game.pillInfo.lastPositions.right + 1) % 10].contains.possibleRotation) {
-                    game.pillPosition((game.pillInfo.lastPositions.left + 1), (game.pillInfo.lastPositions.right + 1))
-                    game.pillInfo.unTransformedPosition.left += 1
-                }
-            } catch (err) {}
-        }
-        //lewo rotacja
-        if (e.keyCode === 38 || e.keyCode === 87) { // rotate left 
-            if (
-                (game.pillInfo.lastPositions.left % 10) === 7 &&
-                (game.pillInfo.lastPositions.right % 10) === 7
-            ) {
-                let cstEvent = new Event('keydown')
-                cstEvent.keyCode = 37
-                document.dispatchEvent(cstEvent)
+        console.log("słucham")
+        document.removeEventListener('keydown', game.pillMove)
+        // document.removeEventListener('keyup', game.pillFlag)
+        game.repeate = setInterval(() => {
+            console.log("Działam")
+            switch (e.keyCode) {
+                case 37:
+                case 65:
+                    game.pillMoveExecutoner(0)
+                    break;
+                case 39:
+                case 68:
+                    game.pillMoveExecutoner(1)
+                    break;
+                case 38:
+                case 87:
+                    game.pillMoveExecutoner(2)
+
+                    break
+                case 16:
+                    game.pillMoveExecutoner(3)
+                    break
+                case 40:
+                case 83:
+                    game.pillMoveExecutoner(4)
+                    break
             }
-            //? normalna część nie rusz 
-            game.rotationAngle++
-            if (game.rotationAngle === 4)
-                game.rotationAngle = 0
-            if (!game.pillRotate())
-                game.rotationAngle--
-        }
-        //w prawo rotacja
-        if (e.keyCode === 16) { // rotate right  
-            if (
-                (game.pillInfo.lastPositions.left % 10) === 7 &&
-                (game.pillInfo.lastPositions.right % 10) === 7
-            ) {
-                let cstEvent = new Event('keydown')
-                cstEvent.keyCode = 37
-                document.dispatchEvent(cstEvent)
-            }
-            game.rotationAngle--
-            if (game.rotationAngle === -1)
-                game.rotationAngle = 3
-            if (!game.pillRotate())
+        }, 75, e)
+    },
+    pillMoveExecutoner(kliker) {
+        switch (kliker) {
+            case 0: //left
+                try {
+                    if ((game.pillInfo.lastPositions.left - 1) % 10 >= 0 && (game.pillInfo.lastPositions.left - 1) % 10 <= 7 && game.gameArray[Math.floor((game.pillInfo.lastPositions.left - 1) / 10)][(game.pillInfo.lastPositions.left - 1) % 10].contains.possibleRotation && game.gameArray[Math.floor((game.pillInfo.lastPositions.right - 1) / 10)][(game.pillInfo.lastPositions.right - 1) % 10].contains.possibleRotation) {
+                        game.pillPosition((game.pillInfo.lastPositions.left - 1), (game.pillInfo.lastPositions.right - 1))
+                        game.pillInfo.unTransformedPosition.left -= 1
+                    }
+                } catch (err) {}
+                break
+            case 1: //right
+                try {
+                    if ((game.pillInfo.lastPositions.right + 1) % 10 <= 7 && game.gameArray[Math.floor((game.pillInfo.lastPositions.left + 1) / 10)][(game.pillInfo.lastPositions.left + 1) % 10].contains.possibleRotation && game.gameArray[Math.floor((game.pillInfo.lastPositions.right + 1) / 10)][(game.pillInfo.lastPositions.right + 1) % 10].contains.possibleRotation) {
+                        game.pillPosition((game.pillInfo.lastPositions.left + 1), (game.pillInfo.lastPositions.right + 1))
+                        game.pillInfo.unTransformedPosition.left += 1
+                    }
+                } catch (err) {}
+                break
+            case 2: //rotate left
+                if (
+                    (game.pillInfo.lastPositions.left % 10) === 7 &&
+                    (game.pillInfo.lastPositions.right % 10) === 7
+                )
+                    game.pillMoveExecutoner(0)
+                //? normalna część nie rusz 
                 game.rotationAngle++
-        }
-        if (e.keyCode === 40 || e.keyCode === 83) {
-            clearInterval(pillFallInterval)
-            pillFallInterval = setInterval(game.pillFall, 50)
-            document.removeEventListener('keydown', game.pillMove)
+                if (game.rotationAngle === 4)
+                    game.rotationAngle = 0
+                if (!game.pillRotate())
+                    game.rotationAngle--
+                break
+            case 3: //rotate right
+                if (
+                    (game.pillInfo.lastPositions.left % 10) === 7 &&
+                    (game.pillInfo.lastPositions.right % 10) === 7
+                )
+                    game.pillMoveExecutoner(0)
+                game.rotationAngle--
+                if (game.rotationAngle === -1)
+                    game.rotationAngle = 3
+                if (!game.pillRotate())
+                    game.rotationAngle++
+                break
+            case 4: // execute fall 33
+                clearInterval(pillFallInterval)
+                clearInterval(game.repeate)
+                game.repeate = null
+                pillFallInterval = setInterval(game.pillFall, 10)
+                document.removeEventListener('keydown', game.pillMove)
+                document.removeEventListener('keyup', game.pillFlag)
+                //TODO wyłączanie ruchu
+                break
         }
     },
     pillFall: () => {
@@ -273,6 +306,7 @@ const game = {
     //* moment końca operowania na pigułce 
     setPillArray: () => {
         document.removeEventListener('keydown', game.pillMove) //!!!! zostaw bo inaczej będzie śmmieszny bug :)
+        document.removeEventListener('keyup', game.pillFlag)
         game.gameArray[Math.floor(game.pillInfo.lastPositions.left / 10)][game.pillInfo.lastPositions.left % 10].contains = {
             type: "pill",
             color: game.pillInfo.leftSegment.color,
@@ -466,6 +500,7 @@ const game = {
             game.pillSegmentRight = pillsColors[Math.floor(Math.random() * (3))]
         } else {
             document.removeEventListener('keydown', game.pillMove)
+            document.removeEventListener('keyup', game.pillFlag)
             clearInterval(pillFallInterval)
             mario.looser()
         }
@@ -475,66 +510,32 @@ const game = {
         game.pillSegmentLeft = pillsColors[Math.floor(Math.random() * (3))] //finds next pill colors
         game.pillSegmentRight = pillsColors[Math.floor(Math.random() * (3))] //finds next pill colors 
         let intervalCounter = 0
+        let found = true
         for (let i = 0; i < gameLevelsSettings[game.level].virusNumber; i++) {
             intervalCounter++
             if (intervalCounter === 3)
                 intervalCounter = 0
-            let found = true
-            do {
+            found = true
+
+            while (found) {
                 let X = Math.floor(Math.random() * 11) + 5
                 let Y = Math.floor(Math.random() * 8)
                 if (Object.keys(game.gameArray[X][Y].contains).length == 2) {
-                    let szukacz = 0;
                     let colorCounter = 1
-                    // check horizontal
-                    game.gameArray[X].some((index, counter) => {
-                        try {
-                            if (index.contains.color == virusColor[intervalCounter].color) {
-                                colorCounter++
-                                if (colorCounter == 3) {
-                                    return colorCounter
-                                }
-                            } else {
-                                colorCounter = 1
-                            }
-                        } catch (err) {}
-                    })
-                    // check vertical //jest to dłuższy warunek i nie ma sensu sprawdzać go za każdym razem jeśli sam w sobie 1 t eliminuje
-                    if (colorCounter != 3) {
-                        colorCounter = 1
-                        for (let i = 0; i < 13; i++) {
-                            try {
-                                if (game.gameArray[i][Y].contains.color == virusColor[intervalCounter].color) {
-                                    colorCounter++
-                                    if (colorCounter == 3)
-                                        return colorCounter
-                                } else {
-                                    colorCounter = 1
-                                }
-                            } catch (err) {
-                                colorCounter = 1
-                            }
-                        }
-                    }
-                    szukacz++
-                    if (colorCounter != 3) {
-                        console.log(szukacz);
-                        found = false
-                        szukacz = 0
-                        game.gameArray[X][Y].contains = {
-                            possibleRotation: false,
-                            possibleStopPoint: false,
-                            type: "virus",
-                            color: virusColor[intervalCounter].color,
-                            imagine: virusColor[intervalCounter].imagine
-                        }
+                    found = false
+                    game.gameArray[X][Y].contains = {
+                        possibleRotation: false,
+                        possibleStopPoint: false,
+                        type: "virus",
+                        color: virusColor[intervalCounter].color,
+                        imagine: virusColor[intervalCounter].imagine
                     }
 
                 }
             }
-            while (found)
 
-            if (i === gameLevelsSettings[game.level].virusNumber - 1) { // interval has ended 
+
+            if (i === gameLevelsSettings[game.level].virusNumber - 1) {
                 game.refreshNet()
                 game.pillSegmentLeft = pillsColors[Math.floor(Math.random() * (3))]
                 game.pillSegmentRight = pillsColors[Math.floor(Math.random() * (3))]
@@ -764,7 +765,10 @@ const mario = {
                     game.createPill()
                     game.pillPosition(3, 4)
                     pillFallInterval = setInterval(game.pillFall, 1000)
-                    document.addEventListener('keydown', game.pillMove) //!!!! WYŁ MOŻLIWOŚC RUCHU      
+                    document.addEventListener('keydown', game.pillMove) //!!!! włącza możliwośc ruchu MOŻLIWOŚC RUCHU
+                    document.addEventListener('keyup', game.pillFlag)
+                    //TODO dodaj nową możliwość ruchu
+
                     //generate new pill colcor 
                     mario.catchPill()
                 } else {

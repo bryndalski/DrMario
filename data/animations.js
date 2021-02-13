@@ -15,7 +15,7 @@ const flySchema = [{
             left: "animNet48"
         },
         transformation: {
-            left: "rotate(-90deg)",
+            left: "rotate(90deg)",
             right: "rotate(90deg)"
         }
     },
@@ -229,26 +229,6 @@ const virusPositions = [{
         left: "35px"
     },
 
-    // {
-    //     top: "20px",
-    //     left: "60px"
-    // }, {
-    //     top: "70px",
-    //     left: "150px"
-    // }, {
-    //     top: "135px",
-    //     left: "60px"
-    // },
-    // {
-    //     top: "40px",
-    //     left: "35px"
-    // }, {
-    //     top: "50px",
-    //     left: "130px"
-    // }, {
-    //     top: "125px",
-    //     left: "80px"
-    // },
 
 ]
 

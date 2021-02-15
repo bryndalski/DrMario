@@ -33,7 +33,8 @@ body {
     width: 1180px;
     height: 663px;
     border: solid 1px black;
-    background-image: url("./images/background.jpg");
+    background-color: green;
+    background-image: url("./images/background.png");
 }
 
 .comunicatContainer {
@@ -95,7 +96,7 @@ body {
     }
 
     #animNet48 {
-        transform: rotate(0deg) !important;
+        // transform: rotate(0deg) !important;
     }
 }
 
@@ -129,8 +130,6 @@ body {
 
     .virusThree {
         background: url('./images/rd/redVirus.gif');
-
-
     }
 }
 

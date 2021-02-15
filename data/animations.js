@@ -15,7 +15,7 @@ const flySchema = [{
             left: "animNet48"
         },
         transformation: {
-            left: "rotate(90deg)",
+            left: "rotate(-90deg)",
             right: "rotate(90deg)"
         }
     },

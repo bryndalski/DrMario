@@ -94,10 +94,6 @@ body {
     div {
         background-size: cover;
     }
-
-    #animNet48 {
-        // transform: rotate(0deg) !important;
-    }
 }
 
 .magnidier {
@@ -119,17 +115,21 @@ body {
     }
 
     .virusOne {
-        background: url('./images/bl/blueVirus.gif');
+        position: absolute;
+        // background: url('./images/bl/blueVirus.gif');
 
     }
 
     .virusTwo {
+        position: absolute;
 
-        background: url('./images/yl/yellowVirus.gif');
+        // background: url('./images/yl/yellowVirus.gif');
     }
 
     .virusThree {
-        background: url('./images/rd/redVirus.gif');
+        position: absolute;
+
+        // background: url('./images/rd/redVirus.gif');
     }
 }
 

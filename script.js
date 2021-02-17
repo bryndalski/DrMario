@@ -20,33 +20,28 @@ const virusColor = [{
     imagine: `url('./images/redVirus.gif')`,
     dead: `url('./images/redDestroy.gif')`,
     deadVirus: `url('./images/redVirusDestroy.gif')`
-
 }, {
     color: "blue",
     imagine: `url('./images/blueVirus.gif')`,
     dead: `url('./images/blueDestroy.gif')`,
     deadVirus: `url('./images/blueVirusDestroy.gif')`
-
 }, {
     color: "yellow",
     imagine: `url('./images/yellowVirus.gif')`,
     dead: `url('./images/yellowDestroy.gif')`,
     deadVirus: `url('./images/yellowVirusDestroy.gif')`
-
-
 }]
 let pillFallInterval;
 const rotationAngles = ['rotate(0deg)', 'rotate(-180deg)', 'rotate(-90deg)', 'rotate(90deg)']
 const game = {
     wirusNumbers: {
-
-        blue: 0,
-        yellow: 0,
-        red: 0,
+        blue: null,
+        yellow: null,
+        red: null,
     },
     gameArray: [],
     points: 0,
-    level: 1,
+    level: 2,
     pillInfo: {},
     rotationAngle: 0,
     dropArray: [],
@@ -101,7 +96,6 @@ const game = {
                 digit.src = './images/cyfry/0.png'
             document.querySelector(`.${parentName}`).appendChild(digit)
         }
-
     },
     //* Zabawa z tabletkami 
     createPill: () => {
@@ -149,7 +143,7 @@ const game = {
     },
     //* Pozycjownowanie tabletek
     pillMove: (e) => {
-        document.removeEventListener('keydown', game.pillMove) // TODO wywal obracanie za interwał 
+        document.removeEventListener('keydown', game.pillMove)
         // document.removeEventListener('keyup', game.pillFlag)
         game.repeate = setInterval(() => {
             //? Kod łapie mi 1 char i działa ok 1 klik i ruch pytanie dlaczego interwał nie działa tak smooth jak chciałem
@@ -227,7 +221,6 @@ const game = {
                 pillFallInterval = setInterval(game.pillFall, 10)
                 document.removeEventListener('keydown', game.pillMove)
                 document.removeEventListener('keyup', game.pillFlag)
-                //TODO wyłączanie ruchu
                 break
         }
     },
@@ -329,7 +322,6 @@ const game = {
             possibleStopPoint: false
         }
         game.refreshNet() //!! zabezpieczenie odświeża po umieszczeniu tabletki w razie gdy animacja nie nadąża nad tablicą
-
     },
     //*zbijania
     fallCheck: (shouldNewPillBeCreated) => {
@@ -360,7 +352,6 @@ const game = {
                             killArray = []
                         }
                         killArray.push(index)
-
                     }
                 else {
                     dropCounter++
@@ -423,7 +414,6 @@ const game = {
                         dropCounter = 1
                         killArray = []
                     }
-
             })
         })
         if (game.dropArray.length !== 0)
@@ -445,14 +435,9 @@ const game = {
                 game.virusNumber--
                 game.setNumber('virusNumber', game.virusNumber)
                 //* zbicia wirusów 
-                game.wirusNumbers[index.contains.color]--
-                console.log(Object.values(game.wirusNumbers))
-
-                lupa.destroyVirus(index.contains.color)
                 stop = true
             }
         })
-        if (stop) setTimeout(lupa.startCarusell, 2000)
         game.dropArray.forEach((element) => {
             document.getElementById(element.squereId).style.backgroundImage = ``
             document.getElementById(element.squereId).style.transform = ``
@@ -494,8 +479,6 @@ const game = {
             if (shouldDrop)
                 game.dropIt()
         }, 1000)
-
-
     },
     throwPill: () => {
         mario.throwPill({
@@ -524,14 +507,12 @@ const game = {
             if (intervalCounter === 3)
                 intervalCounter = 0
             found = true
-
             while (found) {
                 let X = Math.floor(Math.random() * 11) + 5
                 let Y = Math.floor(Math.random() * 8)
                 if (Object.keys(game.gameArray[X][Y].contains).length == 2) {
                     let colorCounter = 1
                     found = false
-                    game.wirusNumbers[virusColor[intervalCounter].color]++
                     game.gameArray[X][Y].contains = {
                         possibleRotation: false,
                         possibleStopPoint: false,
@@ -539,13 +520,9 @@ const game = {
                         color: virusColor[intervalCounter].color,
                         imagine: virusColor[intervalCounter].imagine
                     }
-
                 }
             }
-
-
             if (i === gameLevelsSettings[game.level].virusNumber - 1) {
-                console.log(game.wirusNumbers)
                 game.refreshNet()
                 game.pillSegmentLeft = pillsColors[Math.floor(Math.random() * (3))]
                 game.pillSegmentRight = pillsColors[Math.floor(Math.random() * (3))]
@@ -593,7 +570,6 @@ const game = {
                                 break
                             case "blue":
                                 document.getElementById(game.gameArray[i][j].squereId).style.backgroundImage = pillsColors[1].imgSource
-
                                 break
                             case "yellow":
                                 document.getElementById(game.gameArray[i][j].squereId).style.backgroundImage = pillsColors[2].imgSource
@@ -602,11 +578,9 @@ const game = {
                         document.getElementById(game.gameArray[i][j].squereId).style.transform = game.gameArray[i][j].contains.rotationAngle
                     } else {
                         document.getElementById(game.gameArray[i][j].squereId).style.backgroundImage = `url()` // psuje dodaj warunek 
-
                     }
                 } catch (err) {}
             }
-
         }
     },
     dropIt: () => {
@@ -658,7 +632,6 @@ const game = {
                         clearInterval(dropItInterval)
                         game.refreshNet()
                         game.fallCheck(true)
-
                     }
                 else {
                     game.refreshNet()
@@ -666,7 +639,6 @@ const game = {
                 }
             },
             10)
-
     },
     dropItArrayComponent: (endRow, endColumn, firstRow, firstColumn, heigherPill) => {
         delete game.gameArray[endRow][endColumn].contains //wyjściowa pozycja pola piguły 
@@ -697,7 +669,6 @@ const game = {
                 higherPill: false
             }
         }
-
     },
     //*wyniki zbić
     setNumber: (parent, score) => {
@@ -727,14 +698,11 @@ const game = {
                 })
             })
             document.querySelector('.screen').style.backgroundColor = `#${Math.floor(Math.random()*16777215).toString(16)}`
-
             //* związane z nadawaniem wszyskich leveli i wirusów wyjściowo
             game.setNumber('gameInfoLevel', game.level)
             game.setNumber('virusNumber', game.virusNumber)
             virusAnimator.virusClasses.forEach((index) => document.querySelector(`.${index}`).style.visibility = "visible")
         }, 1000)
-
-
     }
 }
 const mario = {
@@ -781,8 +749,6 @@ const mario = {
                     pillFallInterval = setInterval(game.pillFall, 1000)
                     document.addEventListener('keydown', game.pillMove) //!!!! włącza możliwośc ruchu MOŻLIWOŚC RUCHU
                     document.addEventListener('keyup', game.pillFlag)
-                    //TODO dodaj nową możliwość ruchu
-
                     //generate new pill colcor 
                     mario.catchPill()
                 } else {
@@ -795,7 +761,11 @@ const mario = {
     looser: () => {
         document.querySelector('.marioContainer').style.background = `url('./images/sadMario.png')`
         document.querySelector('.gameOver').style.visibility = "visible"
-
+        game.wirusNumbers.blue.zatrzymaj()
+        game.wirusNumbers.red.zatrzymaj()
+        game.wirusNumbers.yellow.zatrzymaj()
+        lupa.halt = false
+        lupa.looser()
         if (localStorage.getItem("topScore") == null || game.points > localStorage.getItem("topScore")) {
             localStorage.setItem("topScore", game.points)
             game.setNumber('nameTop', game.points)
@@ -808,59 +778,77 @@ const mario = {
             document.querySelector('.marioContainer').style.background = `url('./images/mario/mario${marioThrowAnimationCounter}.png`
             if (marioThrowAnimationCounter === 8)
                 clearInterval(marioThrowAnimationInterval)
-
-
         }, 40)
     }
-
 }
 const lupa = {
+    wiruski: [],
     circularMoveInterval: null,
     pillsAnimateInterval: null,
     pillAminateCounter: 0,
+    halt: true,
     combinations: virusPositions.map((item, counter) => {
         return counter
     }),
     lupaCarusel: () => {
         if ((lupa.pillAminateCounter % 3) == 0) {
             for (let i = 0; i < 3; i++) {
-                document.querySelector(`.${virusAnimator.virusClasses[i]}`).style.top = virusPositions[lupa.combinations[i]].top
-                document.querySelector(`.${virusAnimator.virusClasses[i]}`).style.left = virusPositions[lupa.combinations[i]].left
+                document.querySelector(`.${virusAnimator.virusClasses[0]}`).style.background = virusAnimator.blue[(lupa.pillAminateCounter % 4)]
+                document.querySelector(`.${virusAnimator.virusClasses[1]}`).style.background = virusAnimator.red[(lupa.pillAminateCounter % 4)]
+                document.querySelector(`.${virusAnimator.virusClasses[2]}`).style.background = virusAnimator.yellow[(lupa.pillAminateCounter % 4)]
             }
             lupa.combinations.unshift(lupa.combinations.pop())
         }
         lupa.pillAminateCounter++
     },
-    startCarusell: () => {
-        lupa.circularMoveInterval = setInterval(lupa.lupaCarusel, 1000)
+    looser: () => {
+        setInterval(() => {
+            if ((lupa.pillAminateCounter % 3) == 0) {
+                for (let i = 0; i < 3; i++) {
+                    document.querySelector(`.${virusAnimator.virusClasses[0]}`).style.background = virusAnimator.blue[(lupa.pillAminateCounter % 2 == 0) ? 1 : 3]
+                    document.querySelector(`.${virusAnimator.virusClasses[1]}`).style.background = virusAnimator.red[(lupa.pillAminateCounter % 2 == 0) ? 1 : 3]
+                    document.querySelector(`.${virusAnimator.virusClasses[2]}`).style.background = virusAnimator.yellow[(lupa.pillAminateCounter % 2 == 0) ? 1 : 3]
+                }
+            }
+            lupa.pillAminateCounter++
+        }, 100)
     },
-    destroyVirus: (color) => {
-        clearInterval(lupa.circularMoveInterval)
-        switch (color) {
-            case "red":
-                document.querySelector(`.${virusAnimator.virusClasses[2]}`).style.background = `url('./images/deadVirus1.gif')`
-                setTimeout(() => document.querySelector(`.${virusAnimator.virusClasses[2]}`).style.background = `url('./images/rd/redVirus.gif')`, 2000)
-                break
-            case "blue":
-                document.querySelector(`.${virusAnimator.virusClasses[0]}`).style.background = `url('./images/deadVirus2.gif')`
-                setTimeout(() => document.querySelector(`.${virusAnimator.virusClasses[0]}`).style.background = `url('./images/bl/blueVirus.gif')`, 2000)
-                break
-            case "yellow":
-                document.querySelector(`.${virusAnimator.virusClasses[1]}`).style.background = `url('./images/deadVirus3.gif')`
-                setTimeout(() => document.querySelector(`.${virusAnimator.virusClasses[1]}`).style.background = `url('./images/yl/yellowVirus.gif')`, 2000)
-                break
-        }
-        setTimeout(() => Object.values(game.wirusNumbers).forEach((index, number) => {
-            console.log(index == 0)
-            if (index == 0)
-                document.querySelector(`.${virusAnimator.virusClasses[number]}`).style.visibility = "hidden"
-        }), 2000)
-        lupa.circularMoveInterval = null
-    }
-
+    startCarusel() {
+        lupa.circularMoveInterval = setInterval(lupa.lupaCarusel, 200)
+    },
 }
-
-
+class doLupyWirusek {
+    constructor(element, wejsciowa) {
+        this.element = element
+        this.wejsciowa = wejsciowa
+        this.x = 0
+        this.y = 0
+        this.srodek = {
+            x: 76,
+            y: 75
+        }
+        this.orbitowalna = 60
+        this.zasuwajInterwal = null
+    }
+    ruchKulisty() {
+        this.wejsciowa += 0.3 // określam przesunięcie na orbie dla każdego kroku
+        this.x = this.srodek.x + (this.orbitowalna * Math.sin(this.wejsciowa));
+        this.y = this.srodek.y + (this.orbitowalna * Math.cos(this.wejsciowa));
+        this.element.style.top = this.y + "px";
+        this.element.style.left = this.x + "px";
+    }
+    zasuwaj() {
+        this.ruchKulisty()
+        this.zasuwajInterwal = setInterval(() => {
+            this.ruchKulisty()
+        }, 3000);
+    }
+    zatrzymaj() {
+        clearInterval(this.zasuwajInterwal)
+        clearInterval(lupa.circularMoveInterval)
+        this.zasuwajInterwal = null
+    }
+}
 window.addEventListener('DOMContentLoaded', (event) => {
     game.virusNumber = gameLevelsSettings[game.level].virusNumber,
         game.createGame()
@@ -873,7 +861,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
     game.createNumberFrame('virusNumber', 'virNumber', 2, true)
     game.createVirusMap()
     game.refreshNet()
-    lupa.startCarusell()
     //* związane z nadawaniem wszyskich leveli i wirusów wyjściowo
     if (localStorage.getItem("topScore") == null)
         game.setNumber('nameTop', 0)
@@ -881,6 +868,14 @@ window.addEventListener('DOMContentLoaded', (event) => {
         game.setNumber('nameTop', localStorage.getItem("topScore"))
     game.setNumber('gameInfoLevel', game.level)
     game.setNumber('virusNumber', game.virusNumber)
+    //wirusy
+    game.wirusNumbers.blue = new doLupyWirusek(document.querySelector(`.${virusAnimator.virusClasses[0]}`), 0.3) //niebieski
+    game.wirusNumbers.blue.zasuwaj()
+    game.wirusNumbers.red = new doLupyWirusek(document.querySelector(`.${virusAnimator.virusClasses[1]}`), 15) //czerwony
+    game.wirusNumbers.red.zasuwaj()
+    game.wirusNumbers.yellow = new doLupyWirusek(document.querySelector(`.${virusAnimator.virusClasses[2]}`), 4.5)
+    game.wirusNumbers.yellow.zasuwaj()
+    //lupa
     lupa.lupaCarusel()
-
+    lupa.startCarusel()
 });

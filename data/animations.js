@@ -234,4 +234,22 @@ const virusPositions = [{
 
 const virusAnimator = {
     virusClasses: [`virusOne`, `virusTwo`, `virusThree`],
+    blue: [
+        `url('./images/bl/1.png')`,
+        `url('./images/bl/2.png')`,
+        `url('./images/bl/3.png')`,
+        `url('./images/bl/4.png')`,
+    ],
+    yellow: [
+        `url('./images/yl/1.png')`,
+        `url('./images/yl/2.png')`,
+        `url('./images/yl/3.png')`,
+        `url('./images/yl/4.png')`,
+    ],
+    red: [
+        `url('./images/rd/1.png')`,
+        `url('./images/rd/2.png')`,
+        `url('./images/rd/3.png')`,
+        `url('./images/rd/4.png')`,
+    ]
 }

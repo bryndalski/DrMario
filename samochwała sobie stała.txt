@@ -1,0 +1,19 @@
+punkciki:
+{
+   poruszanie:true,
+   obracanie:true,
+   zbijanie:true,
+   krzyżowanie:true,
+   storage:true,
+   opadanie:true,
+   animacje:{
+       jakoGify:{
+           AnimacjeZbiciaWirusa:true,
+           rozniceMiedzyZbiciami:true,
+       },
+       pigolaZPreview:true,
+       gameOver:true,
+       nextStage:true,
+   },
+    dodatkowe:false,
+}   
